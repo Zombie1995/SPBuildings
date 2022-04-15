@@ -8,5 +8,4 @@ def start(message):
     else:
         bot.send_message(message.from_user.id, 'Напиши /start')
 
-
 bot.polling(none_stop=True, interval=0)
