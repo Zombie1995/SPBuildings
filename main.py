@@ -2,8 +2,8 @@ import telebot
 import uuid
 import os
 import speech_recognition as sr
-# bot = telebot.TeleBot('5302345860:AAGahsIU7Q6lAYz4tD5ZVVFMpqugRKTHXIE')
-bot = telebot.TeleBot('1644030482:AAG_p9fN77Q2T0Nxjbqm53zjm9vkHUNI9-8')
+
+bot = telebot.TeleBot('5302345860:AAGahsIU7Q6lAYz4tD5ZVVFMpqugRKTHXIE')
 
 
 @bot.message_handler(content_types=['text'])
