@@ -4,7 +4,7 @@ from webhook import Webhook
 from location import Geolocator
 from voice_recognition import VoiceRecognizer
 
-WEBHOOK_URL = 'https://a15b-188-243-183-20.ngrok.io'
+WEBHOOK_URL = 'https://2fd0-188-243-183-20.ngrok.io'
 API_TOKEN = '5302345860:AAGahsIU7Q6lAYz4tD5ZVVFMpqugRKTHXIE'
 
 bot = telebot.TeleBot(API_TOKEN)
