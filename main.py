@@ -1,71 +1,43 @@
-import os
 import telebot
-from flask import Flask, request
-import uuid
-import speech_recognition as sr
+# Our modules
+from webhook import Webhook
+from location import Geolocator
+from voice_recognition import VoiceRecognizer
 
-token = '5302345860:AAGahsIU7Q6lAYz4tD5ZVVFMpqugRKTHXIE'
-app_url = f'https://spbuldings.herokuapp.com/{token}'
-bot = telebot.TeleBot(token)
-server = Flask(__name__)
+WEBHOOK_URL = 'https://a15b-188-243-183-20.ngrok.io'
+API_TOKEN = '5302345860:AAGahsIU7Q6lAYz4tD5ZVVFMpqugRKTHXIE'
 
-
-@server.route('/' + token, methods=['POST'])
-def get_message():
-    json_string = request.get_data().decode('utf-8')
-    update = telebot.types.Update.de_json(json_string)
-    bot.process_new_updates([update])
-    return '!', 200
+bot = telebot.TeleBot(API_TOKEN)
+# Our classes
+webhook = Webhook(bot, WEBHOOK_URL)
+geolocator = Geolocator()
+voice_recognizer = VoiceRecognizer()
 
 
-@server.route('/')
-def webhook():
-    bot.remove_webhook()
-    bot.set_webhook(url=app_url)
-    return '!', 2000
+@bot.message_handler(commands=["start"])
+def start_msg(message):
+    button = geolocator.get_location_button()
+    text = ''
+    text += 'Это инфа о боте \n'
+    text += 'Еще одна инфа о боте'
+    bot.send_message(
+        message.chat.id, text,
+        reply_markup=button)
+
+
+@bot.message_handler(content_types=["location"])
+def show_location(message):
+    location = geolocator.get_location(message)
+    bot.send_message(message.from_user.id, location)
+
+
+@bot.message_handler(content_types=["voice"])
+def recognize_voice(message):
+    file_info = bot.get_file(message.voice.file_id)
+    voice_file = bot.download_file(file_info.file_path)
+    text = voice_recognizer.get_text(voice_file)
+    bot.send_message(message.from_user.id, text)
 
 
 if __name__ == '__main__':
-    server.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
-
-
-@bot.message_handler(content_types=['text'])
-def start(message):
-    if message.text == '/start':
-        bot.send_message(message.from_user.id, "Yeah")
-    else:
-        bot.send_message(message.from_user.id, 'Напиши /start')
-
-
-language = 'ru_RU'
-r = sr.Recognizer()
-
-
-def recognise(filename):
-    with sr.AudioFile(filename) as source:
-        audio_text = r.listen(source)
-        try:
-            text = r.recognize_google(audio_text, language=language)
-            return text
-        except:
-            return "Sorry.. run again..."
-
-
-@bot.message_handler(content_types=['voice'])
-def voice_processing(message):
-    filename = str(uuid.uuid4())
-    file_name_full = "./voice/" + filename + ".ogg"
-    file_name_full_converted = "./ready/" + filename + ".wav"
-    file_info = bot.get_file(message.voice.file_id)
-    downloaded_file = bot.download_file(file_info.file_path)
-    with open(file_name_full, 'wb') as new_file:
-        new_file.write(downloaded_file)
-    os.system(os.path.abspath("ffmpeg") + " -i " +
-              file_name_full + "  " + file_name_full_converted)
-    text = recognise(file_name_full_converted)
-    bot.reply_to(message, text)
-    os.remove(file_name_full)
-    os.remove(file_name_full_converted)
-
-
-bot.polling(none_stop=True, interval=0)
+    webhook.run()

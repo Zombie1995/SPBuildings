@@ -1,31 +1,22 @@
-import telebot
-import requests
 from telebot import types
 from geopy.geocoders import Nominatim
 
-bot = telebot.TeleBot('5302345860:AAGahsIU7Q6lAYz4tD5ZVVFMpqugRKTHXIE')
-geolocator = Nominatim(user_agent='why')
+class Geolocator:
+    def __init__(self):
+        self.geolocator = Nominatim(user_agent='why')
+    
+    def get_location_button(self):
+        keyboard = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+        button_location = types.KeyboardButton(text="Здания поблизости", request_location=True)
+        keyboard.add(button_location)
+        return keyboard
 
-
-@bot.message_handler(commands=["start"])
-def start(message):
-    keyboard = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-    button_location = types.KeyboardButton(text="Поделиться местоположением", request_location=True)
-    keyboard.add(button_location)
-    bot.send_message(message.chat.id, "Поделитесь вашим местоположением (должна быть включена геолокация) ",
-                     reply_markup=keyboard)
-
-
-@bot.message_handler(content_types=['location'])
-def location(message):
-    if message.location is not None:
-        print(message.location)
-        print(message)
-        long = message.location.longitude
-        lat = message.location.latitude
-        str_coordinates = str(lat) + ", " + str(long)
-        location = geolocator.reverse(str_coordinates)
-        print(location.address)
-
-
-bot.polling(none_stop=True, interval=0)
+    def get_location(self, message):
+        if message.location is not None:
+            long = message.location.longitude
+            lat = message.location.latitude
+            str_coordinates = str(lat) + ", " + str(long)
+            location = self.geolocator.reverse(str_coordinates)
+            return str_coordinates+location.address
+        else:
+            return 'Пожалуйста, включите геопозицию.'
