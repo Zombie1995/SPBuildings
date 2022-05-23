@@ -26,9 +26,9 @@ def start_msg(message):
 
 
 @bot.message_handler(content_types=["location"])
-def show_location(message):
-    location = geolocator.get_location(message)
-    bot.send_message(message.from_user.id, location)
+def show_nearest(message):
+    nearest = geolocator.get_nearest(message)
+    bot.send_message(message.from_user.id, nearest)
 
 
 @bot.message_handler(content_types=["voice"])
