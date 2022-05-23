@@ -18,7 +18,7 @@ language = 'ru_RU'
 r = sr.Recognizer()
 
 
-def recognise(filename):
+def recognize(filename):
     with sr.AudioFile(filename) as source:
         audio_text = r.listen(source)
         try:
@@ -39,7 +39,7 @@ def voice_processing(message):
         new_file.write(downloaded_file)
     os.system(os.path.abspath("ffmpeg") + " -i " +
               file_name_full+"  "+file_name_full_converted)
-    text = recognise(file_name_full_converted)
+    text = recognize(file_name_full_converted)
     bot.reply_to(message, text)
     os.remove(file_name_full)
     os.remove(file_name_full_converted)
