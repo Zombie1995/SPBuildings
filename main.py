@@ -6,7 +6,7 @@ from webhook import Webhook
 from location import Geolocator
 from voice_recognition import VoiceRecognizer
 
-WEBHOOK_URL = 'https://74e3-188-243-183-20.ngrok.io'
+WEBHOOK_URL = 'https://c361-188-243-183-20.ngrok.io'
 API_TOKEN = '5302345860:AAGahsIU7Q6lAYz4tD5ZVVFMpqugRKTHXIE'
 
 bot = telebot.TeleBot(API_TOKEN)
@@ -15,6 +15,9 @@ image_parser = YandexImage()
 webhook = Webhook(bot, WEBHOOK_URL)
 geolocator = Geolocator()
 voice_recognizer = VoiceRecognizer()
+
+# Nearest buildings
+nearest = []
 
 
 @bot.message_handler(commands=["start"])
@@ -36,22 +39,48 @@ def start_msg(message):
 
 @bot.message_handler(content_types=["location"])
 def show_nearest(message):
+    global nearest
     nearest = geolocator.get_nearest(message)
+    if len(nearest) == 0:
+        bot.send_message(
+            message.chat.id,
+            'Исторические здания рядом не обнаружены.')
+        return
     building_index = 0
     for building in nearest:
-        name = building[0]
-        address = building[1]
+        name = building['name']
+        address = building['address']
         text = '🏠 ' + name
         btn = telebot.types.InlineKeyboardButton(
             text, callback_data=str(building_index))
         markup = telebot.types.InlineKeyboardMarkup()
         markup.add(btn)
         img_url = image_parser.search(
-            address)[randint(0, 5)].preview.url
-        bot.send_message(
+            name + ' ' + address)[randint(0, 5)].preview.url
+        message_id = bot.send_photo(
             message.chat.id, img_url,
-            reply_markup=markup)
+            reply_markup=markup).message_id
+        building['message_id'] = message_id
         building_index += 1
+
+
+@bot.callback_query_handler(func=lambda call: True)
+def building_history(call):
+    chat_id = call.message.chat.id
+    building_index = int(call.data)
+    bot.edit_message_reply_markup(
+        chat_id,
+        message_id=nearest[building_index]['message_id'],
+        reply_markup=None)
+    for i in range(len(nearest)):
+        if i != building_index:
+            message_id = nearest[i]['message_id']
+            bot.delete_message(chat_id, message_id)
+    text = ''
+    text += nearest[building_index]['name'] + '\n'
+    text += '(' + nearest[building_index]['address'] + ')' + '\n'
+    text += nearest[building_index]['history']
+    bot.send_message(chat_id, text)
 
 
 @bot.message_handler(content_types=["voice"])
@@ -60,10 +89,10 @@ def recognize_voice(message):
     voice_file = bot.download_file(file_info.file_path)
     text = voice_recognizer.get_text(voice_file).capitalize()
     if 'Расскажи' in text:
-        bot.send_message(
-            message.from_user.id,
-            'Команда распознана, но, к сожалению, \
-             такого фунцкионала пока нет(((')
+        reply_text = ''
+        reply_text = 'Команда распознана, но, к сожалению, '
+        reply_text = 'такого фунцкионала пока нет((('
+        bot.send_message(message.from_user.id, reply_text)
     else:
         bot.send_message(message.from_user.id,
                          'Голосовая команда не распознана')

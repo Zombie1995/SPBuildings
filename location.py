@@ -2,13 +2,11 @@ import csv
 from geopy.geocoders import Nominatim
 
 MAX_SQRD_RADIUS = 0.000004
-# MAX_SQRD_RADIUS = 400
 
 
 class Geolocator:
     def __init__(self):
         self.geolocator = Nominatim(user_agent='why')
-
 
     def get_nearest(self, message):
         if message.location is not None:
@@ -23,9 +21,11 @@ class Geolocator:
                     sqrd_distance = x_dif*x_dif+y_dif*y_dif
                     if sqrd_distance < MAX_SQRD_RADIUS:
                         nearest.append(
-                            [row['Название объекта культурного наследия'],
-                             row['Адрес'], 
-                             sqrd_distance])
-            nearest.sort(key=lambda x: x[2])
+                            {'name':
+                             row['Название объекта культурного наследия'],
+                             'address': row['Адрес'],
+                             'history': row['История'],
+                             'sqrd_distance': sqrd_distance})
+            nearest.sort(key=lambda x: x['sqrd_distance'])
             del nearest[5:len(nearest)]
             return nearest
