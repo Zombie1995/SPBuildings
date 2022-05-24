@@ -1,20 +1,14 @@
 import csv
-from telebot import types
 from geopy.geocoders import Nominatim
 
 MAX_SQRD_RADIUS = 0.000004
+# MAX_SQRD_RADIUS = 400
 
 
 class Geolocator:
     def __init__(self):
         self.geolocator = Nominatim(user_agent='why')
 
-    def get_location_button(self):
-        keyboard = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
-        button_location = types.KeyboardButton(
-            text="Здания поблизости", request_location=True)
-        keyboard.add(button_location)
-        return keyboard
 
     def get_nearest(self, message):
         if message.location is not None:
@@ -30,7 +24,8 @@ class Geolocator:
                     if sqrd_distance < MAX_SQRD_RADIUS:
                         nearest.append(
                             [row['Название объекта культурного наследия'],
+                             row['Адрес'], 
                              sqrd_distance])
-            nearest.sort(key=lambda x: x[1])
+            nearest.sort(key=lambda x: x[2])
             del nearest[5:len(nearest)]
             return nearest
