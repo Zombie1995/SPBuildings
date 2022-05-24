@@ -91,7 +91,7 @@ def recognize_voice(message):
     if 'Расскажи' in text:
         reply_text = ''
         reply_text = 'Команда распознана, но, к сожалению, '
-        reply_text = 'такого фунцкионала пока нет((('
+        reply_text = 'Такого функционала пока нет((('
         bot.send_message(message.from_user.id, reply_text)
     else:
         bot.send_message(message.from_user.id,
