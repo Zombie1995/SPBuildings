@@ -6,7 +6,7 @@ from webhook import Webhook
 from location import Geolocator
 from voice_recognition import VoiceRecognizer
 
-WEBHOOK_URL = 'https://c361-188-243-183-20.ngrok.io'
+WEBHOOK_URL = 'https://a595-188-243-183-20.ngrok.io'
 API_TOKEN = '5302345860:AAGahsIU7Q6lAYz4tD5ZVVFMpqugRKTHXIE'
 
 bot = telebot.TeleBot(API_TOKEN)
@@ -102,7 +102,6 @@ def recognize_voice(message):
 def func(message):
     if (message.text == 'Техническая поддержка 🤖'):
         bot.send_message(message.chat.id, text='@theorly')
-
     elif (message.text == 'О боте 💀'):
         text = ''
         text += 'Данный бот поможет определиться на местности, '
@@ -110,19 +109,6 @@ def func(message):
         text += 'Используйте голосовую команду "Расскажи мне о...", '
         text += 'чтобы узнать историю известного вам здания.'
         bot.send_message(message.chat.id, text)
-
-    elif (message.text == 'Вернуться в главное меню'):
-        markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
-        btn1 = telebot.types.KeyboardButton(
-            'Найти здания поблизости 🌎', request_location=True)
-        btn2 = telebot.types.KeyboardButton('Техническая поддержка 🤖')
-        btn3 = telebot.types.KeyboardButton('О боте 💀')
-        markup.add(btn1)
-        markup.add(btn2, btn3)
-        bot.send_message(
-            message.chat.id, text='Вы вернулись в главное меню',
-            reply_markup=markup)
-
     else:
         bot.send_message(message.chat.id, text='Я не знаю, что ответить..')
 
