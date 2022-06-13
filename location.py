@@ -25,6 +25,7 @@ class Geolocator:
                              row['Название объекта культурного наследия'],
                              'address': row['Адрес'],
                              'history': row['История'],
+                             'img_url': row['URL картинки'],
                              'sqrd_distance': sqrd_distance})
             nearest.sort(key=lambda x: x['sqrd_distance'])
             del nearest[5:len(nearest)]

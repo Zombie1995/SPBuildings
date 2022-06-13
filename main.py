@@ -6,7 +6,7 @@ from webhook import Webhook
 from location import Geolocator
 from voice_recognition import VoiceRecognizer
 
-WEBHOOK_URL = 'https://a595-188-243-183-20.ngrok.io'
+WEBHOOK_URL = 'https://0d1e-188-243-183-20.ngrok.io'
 API_TOKEN = '5302345860:AAGahsIU7Q6lAYz4tD5ZVVFMpqugRKTHXIE'
 
 bot = telebot.TeleBot(API_TOKEN)
@@ -55,8 +55,13 @@ def show_nearest(message):
             text, callback_data=str(building_index))
         markup = telebot.types.InlineKeyboardMarkup()
         markup.add(btn)
-        img_url = image_parser.search(
-            name + ' ' + address)[randint(0, 5)].preview.url
+        search_result_range = 5
+        search_text = name + ' ' + address
+        if building['img_url'] != '0':
+            search_result_range = 0
+            search_text = building['img_url']
+        print(building['img_url'])
+        img_url = image_parser.search(search_text)[randint(0, search_result_range)].preview.url
         message_id = bot.send_photo(
             message.chat.id, img_url,
             reply_markup=markup).message_id
