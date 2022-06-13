@@ -60,7 +60,6 @@ def show_nearest(message):
         if building['img_url'] != '0':
             search_result_range = 0
             search_text = building['img_url']
-        print(building['img_url'])
         img_url = image_parser.search(search_text)[randint(0, search_result_range)].preview.url
         message_id = bot.send_photo(
             message.chat.id, img_url,
